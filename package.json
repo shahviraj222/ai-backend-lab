@@ -1,0 +1,13 @@
+{
+  "name": "ai-backend-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A weekly JavaScript learning series on the building blocks of AI application backends.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}

@@ -1,0 +1,163 @@
+# AI Backend Lab
+
+### Small JavaScript lessons. Reliable backend foundations.
+
+**14 runnable lessons · Zero external dependencies · New concepts added weekly**
+
+A hands-on learning series that breaks AI application backends into small, readable JavaScript examples. Each lesson focuses on one problem: coordinating work, avoiding duplicate requests, handling failures, or keeping a busy service responsive.
+
+The examples simulate the backend around an LLM: the code that manages requests to a model or another service. Model training, inference engines, HTTP routes, databases, and authentication are outside the current lessons.
+
+---
+
+## Start here
+
+Use **Node.js 22 or newer**. No API keys, accounts, or package installation are needed to run the examples.
+
+```bash
+git clone https://github.com/shahviraj222/ai-backend-lab.git
+cd ai-backend-lab
+
+# Run your first lesson.
+node task-scheduler.js
+
+# Explore a later concept.
+node backpressure.js
+
+# Run the regression tests.
+npm test
+```
+
+Every lesson runs directly with `node <filename>.js`. Each file also exports its main functions; importing it does not run its demo.
+
+```js
+import { runTasks } from "./task-scheduler.js";
+
+const results = await runTasks(
+  [() => Promise.resolve("first"), () => Promise.resolve("second")],
+  2,
+);
+
+console.log(results); // ["first", "second"]
+```
+
+## Learning path
+
+The order below follows the original series. Filenames describe the concept; the numbers are a suggested reading order, not publication weeks.
+
+| #   | Lesson                                                          | What you build                                                       | Where it helps                                                     |
+| --- | --------------------------------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 01  | [Task scheduler](task-scheduler.js)                             | A worker pool with a concurrency limit and ordered results           | Run a fixed set of API calls without starting all of them together |
+| 02  | [Request deduplication](request-deduplication.js)               | A cache that shares in-flight promises and removes failed entries    | Avoid requesting the same data several times                       |
+| 03  | [Event emitter](event-emitter.js)                               | `on`, `off`, `emit`, and `once` using a listener registry            | Let different parts of an application react to events              |
+| 04  | [Debounce](debounce.js)                                         | A function that runs after a burst of calls settles                  | Reduce repeated search or input-triggered work                     |
+| 05  | [Retry](retry.js)                                               | A bounded retry loop with a delay between attempts                   | Recover from temporary service failures                            |
+| 06  | [Rate limiter](rate-limiter.js)                                 | A per-user sliding window of accepted requests                       | Limit how frequently a user submits work                           |
+| 07  | [LRU cache](lru-cache.js)                                       | A capacity-limited cache that refreshes recency on reads and updates | Keep frequently used results in memory                             |
+| 08  | [Timeout](timeout.js)                                           | A deadline built with `Promise.race` and timer cleanup               | Stop waiting indefinitely for an operation                         |
+| 09  | [Batch processor](batch-processor.js)                           | A buffer that flushes by size or elapsed time                        | Group analytics events or other small operations                   |
+| 10  | [Circuit breaker](circuit-breaker.js)                           | Closed, open, and half-open states with one recovery probe           | Give a failing service time to recover                             |
+| 11  | [Async queue](async-queue.js)                                   | A FIFO queue that wakes waiting consumers                            | Receive messages as they arrive                                    |
+| 12  | [Concurrent message processor](concurrent-message-processor.js) | A fixed pool of workers consuming a live queue                       | Process incoming messages with controlled concurrency              |
+| 13  | [Graceful shutdown](graceful-shutdown.js)                       | A queue that closes and workers that drain accepted work             | Finish accepted messages before stopping                           |
+| 14  | [Backpressure](backpressure.js)                                 | Bounded buffering, waiting producers, and promise-based admission    | Slow producers when workers cannot keep up                         |
+
+## Where these pieces fit
+
+This is a conceptual flow showing where the lessons can be used together. The repository keeps them as individual exercises so each mechanism stays easy to inspect.
+
+```mermaid
+flowchart LR
+    Client[Incoming message] --> Limit[Rate limiter]
+    Limit --> Queue[Queue and backpressure]
+    Queue --> Workers[Concurrent workers]
+    Workers --> Cache[Cache and deduplication]
+    Cache --> Resilience[Timeout, retry, circuit breaker]
+    Resilience --> Model[Model API or another service]
+    Workers -. lifecycle events .-> Events[Event emitter]
+    Events --> Batch[Batch processor]
+    Stop[Shutdown request] -. stop admission and drain .-> Queue
+```
+
+Three related controls solve different problems:
+
+| Control           | Question it answers                                     | Example                                                    |
+| ----------------- | ------------------------------------------------------- | ---------------------------------------------------------- |
+| Rate limit        | How often may a user submit a request?                  | 3 requests per rolling 10 seconds                          |
+| Concurrency limit | How much work may run at once?                          | 2 active message handlers                                  |
+| Backpressure      | What happens when work arrives faster than it finishes? | Wait for queue space, then reject excess waiting producers |
+
+## Behaviors to notice
+
+### Coordinating work
+
+- **Scheduler:** tasks start in input order and results stay in that order, even if tasks finish at different times. A failed task produces `{ success: false, message }`; other tasks continue.
+- **Emitter:** listeners run synchronously in registration order. Each emission uses a snapshot. `once` is safe during nested emissions; `off` removes registrations matching the supplied callback. A thrown listener error propagates to the caller.
+- **Debounce:** only the latest arguments and receiver are used. This example is for synchronous callbacks; calls to the wrapper do not return the eventual callback result.
+- **Live workers:** FIFO describes the order messages are taken from the queue. Concurrent handlers may finish in a different order. Handler failures are logged, and the worker continues.
+
+### Caching and failures
+
+- **Request cache:** identical keys share the same promise. Successful results remain cached for the lifetime of the cache; failures are removed so the next call can retry. This lesson has no TTL or capacity limit.
+- **LRU cache:** reads and updates make an entry most recently used. Missing keys return `-1`. The array implementation keeps the mechanics visible and uses linear-time lookup and reordering.
+- **Retry:** `maxAttempts` includes the first call. The last error is preserved. The example retries every failure with a fixed delay; deciding which operations and errors are safe to retry belongs to the caller.
+- **Timeout:** the deadline rejects the wrapper and clears its timer. The underlying operation continues unless it separately supports cancellation.
+- **Circuit breaker:** consecutive failures are counted in completion order. After the cooldown, only one recovery request is admitted. Late results from before an outage cannot change the recovered circuit.
+
+### Buffering and lifecycle
+
+- **Rate limiter:** accepted request timestamps define a rolling window. Expired timestamps and empty user entries are removed on subsequent calls. All state is local to one process, and cleanup scans the stored users.
+- **Batcher:** the first item starts the wait timer. A full batch sends immediately; a partial batch sends when that timer expires. `flush()` sends the current buffer and can be awaited. It does not wait for previously dispatched batches. Automatic send failures reach `onError`; failed batches are not retried or requeued. Multiple sends may overlap.
+- **Graceful shutdown:** new submissions fail immediately, queued and active messages finish, and `shutdown()` resolves after every worker exits. Failed messages are logged, so completion means every accepted message was attempted. A handler that never settles will keep shutdown waiting.
+- **Backpressure:** `await push(message)` means **accepted**, not processed. The default pending-producer limit equals the queue capacity. Closing rejects producers still waiting for admission and drains accepted messages. `shutdown()` waits for processing to finish.
+
+```js
+import { createMessageProcessor } from "./backpressure.js";
+
+const processor = createMessageProcessor(
+  2, // Active workers.
+  3, // Buffered messages.
+  async (message) => console.log("Processed:", message),
+);
+
+for (const message of ["A", "B", "C", "D", "E", "F"]) {
+  await processor.push(message);
+}
+
+await processor.shutdown();
+```
+
+Await admission in the producer loop to let the queue slow it down. Starting thousands of producer promises at once still creates work outside the queue. These limits count messages, not bytes, and the examples use in-memory state without persistence across process restarts.
+
+## Weekly learning log
+
+The first collection contains all 14 lessons above. New concepts will be added weekly as the series grows; future topics are a learning roadmap rather than dated releases.
+
+| Collection          | Status    | Focus                                                            |
+| ------------------- | --------- | ---------------------------------------------------------------- |
+| Foundations         | Available | Scheduling, caching, events, debounce, retry, rate limiting      |
+| Reliability         | Available | LRU eviction, deadlines, batching, circuit breaking              |
+| Message processing  | Available | Live queues, worker pools, graceful shutdown, backpressure       |
+| Future explorations | Planned   | Cancellation, retry backoff, streaming responses, durable queues |
+
+For each weekly addition:
+
+1. Choose one backend problem and a descriptive `kebab-case.js` filename.
+2. Keep the implementation focused, export the main function, and include a small runnable demo.
+3. Put the explanation and meaningful limitations in this README; keep code comments brief.
+4. Add a regression test for the behavior or edge case, then run `npm test`.
+5. Add the lesson to the learning path and commit a small, related group of files.
+
+## Verification
+
+[The test suite](test/concepts.test.js) covers all 14 lessons, including concurrency limits, shared requests, failed-request recovery, listener removal, LRU eviction, timeout cleanup, batch delivery, circuit recovery, queue ordering, shutdown, and producer limits. It uses Node's built-in test runner.
+
+```bash
+npm test
+```
+
+The examples intentionally remain small and self-contained. Queue logic is repeated across the later lessons so the change from a basic queue to shutdown and backpressure is visible in each file.
+
+---
+
+**Learn one mechanism. Run it. Change it. Observe what happens.**
