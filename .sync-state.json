@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "sourceRepository": "shahviraj222/ReactRevision",
+  "sourceBranch": "main",
+  "sourceRoot": "Javascript/Questions",
+  "lastReviewedCommit": "db1cf72f1f0d90f1854b6eebc55f925eb679db22",
+  "lastReviewedDate": "2026-11-17",
+  "lessons": [
+    {
+      "sourcePath": "Javascript/Questions/1)TaskScheduler.mjs",
+      "sourceBlobSha": "c2c9dfd34973c02afb29da72df21d89f98a1cd47",
+      "destinationPath": "task-scheduler.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/2)APICache withRequestDeduplication.js",
+      "sourceBlobSha": "dfec998f7f23b72276ff4e16fec2c8a1864b93b0",
+      "destinationPath": "request-deduplication.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/3)YourOwnEventEmitter.js",
+      "sourceBlobSha": "2d41ec8f2545e95ea3bf14074807b243b09fe373",
+      "destinationPath": "event-emitter.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/4)DebounceFunctions.js",
+      "sourceBlobSha": "a2d9dd1acdc47ad369bcc0cfb0ffab9d6fa9c0ee",
+      "destinationPath": "debounce.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/5)RetryFunction.js",
+      "sourceBlobSha": "f1cbbd85926fcff67d12b17a81400094269c18f2",
+      "destinationPath": "retry.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/6)APIRateLimiter.js",
+      "sourceBlobSha": "1d08e342334162bf8b8766db090ec362ba1d356f",
+      "destinationPath": "rate-limiter.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/7)LRUCache.js",
+      "sourceBlobSha": "18aecfba0d51bdcd64914fca11c09bcace0bbfa4",
+      "destinationPath": "lru-cache.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/8)APITimeoutSystem.js",
+      "sourceBlobSha": "8b645049dcef3d0d4d14897974acac3387de608b",
+      "destinationPath": "timeout.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/9)BatchProcessor.js",
+      "sourceBlobSha": "91ddcaff904b5c5c80a43da63c45f1127d32912b",
+      "destinationPath": "batch-processor.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/10)APICircuitBreaker.js",
+      "sourceBlobSha": "de196e4e760b286006211da18be45006529eb1a7",
+      "destinationPath": "circuit-breaker.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/11)AsynchronousQueue.js",
+      "sourceBlobSha": "09dc087e555c3c1ddb7eb9f09141cc5f21ed9ac0",
+      "destinationPath": "async-queue.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/12ConcurrentMessageProcessing.js",
+      "sourceBlobSha": "a784115ea2c8de4f4bee01b8ffabce4bcc36d049",
+      "destinationPath": "concurrent-message-processor.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/13)AsyncQueueGracefulShutdown.js",
+      "sourceBlobSha": "72449a3a1348f9140eec280365270954188cde97",
+      "destinationPath": "graceful-shutdown.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/14)PromiseBasedBackpressure.js",
+      "sourceBlobSha": "84373bf629ae9360222b29e941cf14fd4779fae3",
+      "destinationPath": "backpressure.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/15)RequestCoalescingCancellation.js",
+      "sourceBlobSha": "5c66b319e5efae009f50e98a0959b735243dda29",
+      "destinationPath": "request-coalescing.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/16)AsyncProduConsPipline.js",
+      "sourceBlobSha": "928b29433150cb6af49e7b142c841c96df00ba39",
+      "destinationPath": "document-pipeline.js"
+    }
+  ],
+  "supportingFiles": [
+    {
+      "sourcePath": "Javascript/Questions/15)RequestCoalescingCancalation.png",
+      "sourceBlobSha": "0c5b0c37611c0afe9ad6a88921cc92f8005e37ee",
+      "destinationPath": "README.md",
+      "treatment": "Condensed the cancellation flow into a Mermaid sequence diagram."
+    },
+    {
+      "sourcePath": "Javascript/Questions/notes/Debounce Concepts.pdf",
+      "sourceBlobSha": "b1074c5b655a802e342523c68252cfd11c0dd6dc",
+      "destinationPath": "README.md",
+      "treatment": "Condensed the closure explanation into the debounce behavior note."
+    }
+  ]
+}
