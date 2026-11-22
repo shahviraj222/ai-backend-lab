@@ -3,8 +3,8 @@
   "sourceRepository": "shahviraj222/ReactRevision",
   "sourceBranch": "main",
   "sourceRoot": "Javascript/Questions",
-  "lastReviewedCommit": "db1cf72f1f0d90f1854b6eebc55f925eb679db22",
-  "lastReviewedDate": "2026-11-17",
+  "lastReviewedCommit": "16e9869ab371e3b1cfefe53b86b47b68cbcfe28b",
+  "lastReviewedDate": "2026-11-22",
   "lessons": [
     {
       "sourcePath": "Javascript/Questions/1)TaskScheduler.mjs",
@@ -85,6 +85,31 @@
       "sourcePath": "Javascript/Questions/16)AsyncProduConsPipline.js",
       "sourceBlobSha": "928b29433150cb6af49e7b142c841c96df00ba39",
       "destinationPath": "document-pipeline.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/17)PublishSubscribeAsync.js",
+      "sourceBlobSha": "f7a908dd218568762d23b4bf62d1afb3692066d8",
+      "destinationPath": "async-message-broker.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/18)RetryQueueExponentialBackoff.js.js",
+      "sourceBlobSha": "1ebf51809d02234beadb03bb018a2b62a5af5f69",
+      "destinationPath": "retry-queue.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/19)APIRequestPipeline.js",
+      "sourceBlobSha": "ed13ca3d394c52d3d461386ce90b42ba0ed547b5",
+      "destinationPath": "api-request-pipeline.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/20)AIAgentJobExecution.js",
+      "sourceBlobSha": "ed8e0df077976283ca5d295112d9214c840db472",
+      "destinationPath": "agent-job-engine.js"
+    },
+    {
+      "sourcePath": "Javascript/Questions/21)AssgWorkerNewJob.js",
+      "sourceBlobSha": "9c9fbbbc920a8b2157fd969ff4d7f0b307640334",
+      "destinationPath": "cancellable-worker.js"
     }
   ],
   "supportingFiles": [

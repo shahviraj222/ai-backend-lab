@@ -2,7 +2,7 @@
 
 ### Small JavaScript lessons. Reliable backend foundations.
 
-**16 runnable lessons · Zero external dependencies · New concepts added weekly**
+**21 runnable lessons · Zero external dependencies · New concepts added weekly**
 
 A hands-on learning series that breaks AI application backends into small, readable JavaScript examples. Each lesson focuses on one problem: coordinating work, avoiding duplicate requests, handling failures, or keeping a busy service responsive.
 
@@ -63,6 +63,12 @@ The order below follows the original series. Filenames describe the concept; the
 | 14  | [Backpressure](backpressure.js)                                 | Bounded buffering, waiting producers, and promise-based admission         | Slow producers when workers cannot keep up                         |
 | 15  | [Request coalescing and cancellation](request-coalescing.js)    | One in-flight operation with independent caller promises and cancellation | Share identical requests while allowing each caller to leave       |
 | 16  | [Document pipeline](document-pipeline.js)                       | Three asynchronous stages with independent worker limits and job status   | Extract text, summarize it, and save each document                 |
+
+| 17 | [Async message broker](async-message-broker.js) | Concurrent subscribers with independent outcomes | Broadcast lifecycle events |
+| 18 | [Retry queue](retry-queue.js) | Delayed retries and dead-letter inspection | Retry jobs without holding workers |
+| 19 | [API request pipeline](api-request-pipeline.js) | Per-attempt deadlines, retries, and cancellation | Coordinate unreliable API calls |
+| 20 | [Agent job engine](agent-job-engine.js) | Ordered steps, job status, retries, and lifecycle events | Orchestrate a small AI workflow |
+| 21 | [Cancellable worker](cancellable-worker.js) | Per-job cancellation and worker reassignment | Stop waiting and accept the next job |
 
 ## Where these pieces fit
 
@@ -188,13 +194,35 @@ console.log(await job.done);
 
 Each `done` promise reports one document's outcome. To change a stage's worker count, pass a `concurrency` object with `extraction`, `summarization`, or `database`; omitted values keep their defaults.
 
+## Jobs, retries, and cancellation
+
+- **Async broker:** `publish()` waits for every subscriber and returns `Promise.allSettled` results in subscription order. A failing handler does not stop other handlers. Subscriptions changed during publication affect later publications.
+- **Retry queue:** `maxRetries` counts retries after the initial attempt. Delays double after each failure, capped at Node's maximum timer delay. Waiting retries release workers. Exhausted jobs enter the in-memory dead-letter list. This lesson retries all failures and has no shutdown or persistence.
+- **API request pipeline:** each attempt gets a fresh abort signal and timeout. User cancellation interrupts both active waiting and backoff. The API must honor its signal to actually stop underlying work; an uncooperative API can keep running after its wrapper settles. Retry only operations whose side effects can safely be repeated.
+- **Agent engine:** the fixed search → summarize → save workflow retains completed outputs and retries only the failed step. Timeouts and errors marked `retryable` can retry. `waitFor()` resolves a final status, including failure or cancellation. Lifecycle subscribers run independently; completion does not wait for subscriber delivery. Job history and demo storage remain in memory.
+- **Cancellable worker:** cancelling a job releases its worker's wait and prevents a late result from overwriting the cancelled status. It does not forcibly terminate an API that ignores cancellation. Consequently the worker limit bounds active waits, not all underlying operations still running. The demo intentionally illustrates this distinction.
+
+```mermaid
+flowchart LR
+    Queue[Queued job] --> Run[Run current step]
+    Run --> Success{Succeeded?}
+    Success -->|Yes| Next[Next step or completed]
+    Success -->|Retryable failure| Delay[Backoff timer]
+    Delay --> Queue
+    Success -->|Retries exhausted| Failed[Failed or dead-letter]
+    Run -. cancel .-> Cancelled[Cancelled]
+```
+
+The new examples run with `node <filename>.js`; their demonstrations use simulated services, not a live LLM or database. [Additional regression tests](test/advanced-jobs.test.js) cover these five lessons.
+
 ## Weekly learning log
 
-The first collection introduced 14 lessons. The series now contains 16, with new source changes reviewed weekly.
+The first collection introduced 14 lessons. The series now contains 21, with new source changes reviewed weekly.
 
 | Published         | Update                                                                                                                                     |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | November 13, 2026 | Published the first 14 cleaned and tested backend lessons.                                                                                 |
+| November 22, 2026 | Added lessons 17–21: async events, retry queues, API request orchestration, agent jobs, and cancellable workers.                           |
 | November 17, 2026 | Added request coalescing with per-caller cancellation and a document-processing pipeline; expanded the async queue with message listeners. |
 
 | Collection                         | Status    | Focus                                                                       |
@@ -203,7 +231,7 @@ The first collection introduced 14 lessons. The series now contains 16, with new
 | Reliability                        | Available | LRU eviction, deadlines, batching, circuit breaking                         |
 | Message processing                 | Available | Live queues, worker pools, graceful shutdown, backpressure                  |
 | Request coordination and pipelines | Available | Per-caller cancellation, shared requests, and independent processing stages |
-| Future explorations                | Planned   | Retry backoff, streaming responses, durable queues                          |
+| Future explorations                | Planned   | Streaming responses, durable queues                                         |
 
 Lessons originate in [ReactRevision / Javascript / Questions](https://github.com/shahviraj222/ReactRevision/tree/main/Javascript/Questions). This repository publishes reviewed adaptations with consistent filenames and runnable demos. [The sync record](.sync-state.json) maps source file versions to published lessons, helping later updates preserve existing fixes and avoid duplicate imports. Useful study-note explanations are condensed into this guide.
 
@@ -217,7 +245,7 @@ For each weekly addition:
 
 ## Verification
 
-The tests cover all 16 lessons using Node's built-in test runner:
+The tests cover all 21 lessons using Node's built-in test runner:
 
 - [Core concepts](test/concepts.test.js): concurrency limits, caching, retry, eviction, timeouts, batching, circuit recovery, queues, shutdown, and backpressure.
 - [Queue listeners](test/async-queue-listeners.test.js): broadcasting, unsubscribe behavior, listener snapshots, and failure isolation.
